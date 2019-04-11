@@ -1,7 +1,7 @@
-#!/bin/bash 
+#!/bin/bash
 
 # restore maven dependencies downloaded in a previous build,
-# so they do not have to be downloaded again.  
+# so they do not have to be downloaded again.
 # /tmp/artifacts will only be present in the incremental build scenario
 # in which the target image name is an existing docker image which contains
 # dependencies from a prior build execution.
@@ -27,15 +27,15 @@ mkdir -p $deploy_dir
 # Copy the source from the bind mount in preparation for compilation
 cp -ad /tmp/src/* $local_source_dir
 
-# If a pom.xml is present, this is a normal build scenario 
+# If a pom.xml is present, this is a normal build scenario
 # so run maven.
 if [ -f "$local_source_dir/pom.xml" ]; then
   # restore any maven dependencies which will be present if this is an
   # incremental build
   restore_saved_artifacts
-  
+
   pushd $local_source_dir &> /dev/null
-  JAVA_HOME=/etc/alternatives/java_sdk_1.7.0  
+  JAVA_HOME=/etc/alternatives/java_sdk_1.8.0
   mvn clean package -Popenshift -DskipTests
   err=$?
   if [ $err -ne 0 ]; then
@@ -50,7 +50,7 @@ if [ -f "$local_source_dir/pom.xml" ]; then
   if [ -d $local_source_dir/deployments ]; then
     cp $local_source_dir/deployments/*.war $deploy_dir >& /dev/null
   fi
-  
+
   if [ -d $local_source_dir/cfg ]; then
     echo "Copying config files from project..."
     cp cfg/* /wildfly/standalone/configuration
